@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="chart_curve">../icons/chart_curve.png</file>
+        <file>../icons/chart-curve-add-icon.png</file>
+        <file alias="chart">../icons/chart.png</file>
+        <file>../icons/exit.png</file>
+        <file>../icons/Get_16x16.png</file>
+        <file>../icons/hide plots.png</file>
+        <file>../icons/logo.png</file>
+        <file>../icons/pitons.png</file>
+        <file>../icons/remove.png</file>
+        <file>../icons/Save_16x16.png</file>
+        <file>../translates/plotter_ru_RU.qm</file>
+        <file>../icons/Info.png</file>
+        <file>../icons/bus.png</file>
+        <file>../icons/grid_view.png</file>
+        <file>../icons/connect.png</file>
+        <file>../icons/preferences.png</file>
+        <file>../icons/refresh.png</file>
+        <file>../icons/delete.png</file>
+        <file>../icons/settings.png</file>
+    </qresource>
+</RCC>

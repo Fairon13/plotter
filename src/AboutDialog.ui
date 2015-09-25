@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dialogAbout</class>
+ <widget class="QDialog" name="dialogAbout">
+  <property name="windowTitle">
+   <string>About</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="minimumSize">
+      <size>
+       <width>101</width>
+       <height>131</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>101</width>
+       <height>131</height>
+      </size>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="resources.qrc">:/icons/logo.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>RNC</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>&quot;Kurchatov Institute&quot;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>18</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Moscow, 2015</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
