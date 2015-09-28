@@ -1,84 +1,55 @@
 #include "dataviewclass.h"
+#include "ui_dataviewclass.h"
+
 #include <QMouseEvent>
-#include <QApplication>
-#include <QDrag>
-#include <QDir>
-#include <QMimeData>
-#include <QInputDialog>
 #include <QMenu>
+#include <QInputDialog>
 
 #include "pipeasset.h"
 #include "busasset.h"
 #include "datacollectorclass.h"
-#include "plotviewclass.h"
-#include "addingassetdialog.h"
 #include "dataeditorclass.h"
+#include "plotviewclass.h"
 
-#define  DataViewType_Asset  QTreeWidgetItem::UserType
-#define  DataViewType_Data   QTreeWidgetItem::UserType + 1
+#define  dv_type_asset  QTreeWidgetItem::UserType
+#define  dv_type_data   QTreeWidgetItem::UserType + 1
 
-DataViewClass::DataViewClass(AssetClass* pAsset, QWidget *parent) : QTreeWidget(parent)
+#define dv_col_param_name    0
+#define dv_col_description   1
+#define dv_col_channel      2
+#define dv_col_value        3
+#define dv_col_a            4
+#define dv_col_b            5
+#define dv_col_alias        6
+#define dv_col_total        7
+
+DataViewClass::DataViewClass(AssetClass* pAsset, QWidget *parent) : QWidget(parent), ui(new Ui::DataViewClass)
 {
-    _asset = pAsset;
-
-    setColumnCount(7);
-
-    QStringList     columsNames;
-    columsNames.append(tr("Param name"));
-    columsNames.append(tr("Description"));
-    columsNames.append(tr("Channel"));
-    columsNames.append(tr("Value"));
-    columsNames.append("A");
-    columsNames.append("B");
-    columsNames.append(tr("Alias"));
-    setHeaderLabels(columsNames);
-
-    setAlternatingRowColors(true);
-    setSortingEnabled(true);
-    setUniformRowHeights(true);
-
-    setItemDelegate(new DataEditorClass());
-    addAsset(pAsset);
-    //    setExpandsOnDoubleClick(false);
+    ui->setupUi(this);
+    ui->view->setAsset(pAsset);
 }
 
-void DataViewClass::addAsset(AssetClass *pAsset)
+DataViewClass::~DataViewClass()
 {
-    QTreeWidgetItem*    pRootItem = new QTreeWidgetItem(this, DataViewType_Asset);
-//    pRootItem->setText(0, pAsset->name());
-    pRootItem->setText(0, pAsset->description());
-//    pRootItem->setData(0, Qt::UserRole, QVariant::fromValue(reinterpret_cast<void*>(pAsset)));
-
-    QHash<unsigned, DataCollectorClass*>::const_iterator    iter = pAsset->_collectors.constBegin();
-    while(iter != pAsset->_collectors.constEnd())
-    {
-        QTreeWidgetItem*    pItem = new QTreeWidgetItem(this, DataViewType_Data);
-        pItem->setText(0, iter.value()->_name);
-        pItem->setText(1, iter.value()->_param);
-        if(iter.value()->_isInteger)
-        {
-            pItem->setText(2, QString("I:%1").arg(iter.value()->_channel, 6));
-            pItem->setText(3, QString::number(int(iter.value()->_value)));
-        }
-        else
-        {
-            pItem->setText(2, QString("F:%1").arg(iter.value()->_channel, 6));
-            pItem->setText(3, QString::number(iter.value()->_value));
-        }
-
-        pItem->setText(4, QString::number(iter.value()->_scale));
-        pItem->setText(5, QString::number(iter.value()->_offset));
-        pItem->setText(6, iter.value()->_alias);
-        pItem->setData(0, Qt::UserRole, QVariant::fromValue(reinterpret_cast<void*>(iter.value())));
-        pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
-        _DataToItem.insert(iter.value(), pItem);
-        ++iter;
-    }
-
-    sortByColumn(2, Qt::AscendingOrder);
+    delete ui;
 }
 
 void DataViewClass::updateView()
+{
+    ui->view->updateView();
+}
+
+bool DataViewClass::setSelected(DataCollectorClass *pData)
+{
+    ui->view->setSelected(pData);
+}
+
+AssetClass *DataViewClass::asset()
+{
+    return ui->view->asset();
+}
+
+void DataWidgetClass::updateView()
 {
     QHash<unsigned, DataCollectorClass*>::const_iterator    iter = _asset->_collectors.constBegin();
     while(iter != _asset->_collectors.constEnd())
@@ -87,15 +58,15 @@ void DataViewClass::updateView()
         if(pItem)
         {
             if(iter.value()->_isInteger)
-                pItem->setText(3, QString::number(int(iter.value()->_value)));
+                pItem->setText(dv_col_value, QString::number(int(iter.value()->_value)));
             else
-                pItem->setText(3, QString::number(iter.value()->_value));
+                pItem->setText(dv_col_value, QString::number(iter.value()->_value));
         }
         ++iter;
     }
 }
 
-bool DataViewClass::setSelected(DataCollectorClass *pData)
+bool DataWidgetClass::setSelected(DataCollectorClass *pData)
 {
     QTreeWidgetItem*    pItem = _DataToItem.value(pData, 0);
 
@@ -107,7 +78,28 @@ bool DataViewClass::setSelected(DataCollectorClass *pData)
     return false;
 }
 
-void DataViewClass::mousePressEvent(QMouseEvent *event)
+void DataWidgetClass::filterChange(QString txt)
+{
+    int numItems = topLevelItemCount();
+    QTreeWidgetItem* pItem;
+
+    if(txt.isEmpty()){
+        for(int n = 0; n<numItems; ++n){
+            pItem = topLevelItem(n);
+            pItem->setHidden(false);
+        }
+        return;
+    }
+
+    for(int n = 0; n<numItems; ++n){
+        pItem = topLevelItem(n);
+
+        bool isShowItem = pItem->text(dv_col_channel).contains(txt) || pItem->text(dv_col_param_name).contains(txt, Qt::CaseInsensitive) || pItem->text(dv_col_alias).contains(txt, Qt::CaseInsensitive);
+        pItem->setHidden(!isShowItem);
+    }
+}
+
+void DataWidgetClass::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
         dragStartPosition = event->pos();
@@ -115,13 +107,41 @@ void DataViewClass::mousePressEvent(QMouseEvent *event)
     QTreeWidget::mousePressEvent(event);
 }
 
-void DataViewClass::contextMenuEvent(QContextMenuEvent *event)
+void DataWidgetClass::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton))
+        return;
+
+    if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+        return;
+
+    QTreeWidgetItem*        pItem = itemAt(event->pos());
+    if(pItem == 0)
+        return;
+
+    if(pItem->type() != dv_type_data)
+        return;
+
+    DataCollectorClass*     pData = (DataCollectorClass*)pItem->data(0, Qt::UserRole).value<void*>();
+
+    QDrag *drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
+
+    mimeData->setData("plotter/collector", QByteArray((const char*)&pData, sizeof(DataCollectorClass*)));
+    drag->setMimeData(mimeData);
+
+    drag->exec( Qt::LinkAction );
+}
+
+void DataWidgetClass::contextMenuEvent(QContextMenuEvent *event)
 {
     QTreeWidgetItem*        pItem = itemAt(event->pos());
     if(pItem == 0)
         return;
-    if(pItem->type() != DataViewType_Data)
+
+    if(pItem->type() != dv_type_data)
         return;
+
     DataCollectorClass*     pData = (DataCollectorClass*)pItem->data(0, Qt::UserRole).value<void*>();
 
     QMenu   pMenu;
@@ -158,28 +178,43 @@ void DataViewClass::contextMenuEvent(QContextMenuEvent *event)
     }
 }
 
-void DataViewClass::mouseMoveEvent(QMouseEvent *event)
+void DataWidgetClass::setAsset(AssetClass *pAsset)
 {
-    if (!(event->buttons() & Qt::LeftButton))
-        return;
+    _asset = pAsset;
 
-    if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance())
-        return;
+    QTreeWidgetItem*    pRootItem = new QTreeWidgetItem(this, dv_type_asset);
+    pRootItem->setText(dv_col_param_name, pAsset->description());
 
-    QTreeWidgetItem*        pItem = itemAt(event->pos());
-    if(pItem == 0)
-        return;
+    QHash<unsigned, DataCollectorClass*>::const_iterator    iter = pAsset->_collectors.constBegin();
+    while(iter != pAsset->_collectors.constEnd())
+    {
+        QTreeWidgetItem*    pItem = new QTreeWidgetItem(this, dv_type_data);
+        pItem->setText(dv_col_param_name, iter.value()->_name);
+        pItem->setText(dv_col_description, iter.value()->_param);
+        if(iter.value()->_isInteger)
+        {
+            pItem->setText(dv_col_channel, QString("I:%1").arg(iter.value()->_channel, 6));
+            pItem->setText(dv_col_value, QString::number(int(iter.value()->_value)));
+        }
+        else
+        {
+            pItem->setText(dv_col_channel, QString("F:%1").arg(iter.value()->_channel, 6));
+            pItem->setText(dv_col_value, QString::number(iter.value()->_value));
+        }
 
-    if(pItem->type() != DataViewType_Data)
-        return;
+        pItem->setText(dv_col_a, QString::number(iter.value()->_scale));
+        pItem->setText(dv_col_b, QString::number(iter.value()->_offset));
+        pItem->setText(dv_col_alias, iter.value()->_alias);
+        pItem->setData(dv_col_param_name, Qt::UserRole, QVariant::fromValue(reinterpret_cast<void*>(iter.value())));
+        pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
+        _DataToItem.insert(iter.value(), pItem);
+        ++iter;
+    }
 
-    DataCollectorClass*     pData = (DataCollectorClass*)pItem->data(0, Qt::UserRole).value<void*>();
+    sortByColumn(dv_col_channel, Qt::AscendingOrder);
+}
 
-    QDrag *drag = new QDrag(this);
-    QMimeData *mimeData = new QMimeData;
-
-    mimeData->setData("plotter/collector", QByteArray((const char*)&pData, sizeof(DataCollectorClass*)));
-    drag->setMimeData(mimeData);
-
-    drag->exec( Qt::LinkAction );
+DataWidgetClass::DataWidgetClass(QWidget *parent) : QTreeWidget(parent)
+{
+    setItemDelegate(new DataEditorClass());
 }

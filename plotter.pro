@@ -78,7 +78,8 @@ FORMS    += src/mainwindow.ui \
     src/AboutDialog.ui \
     src/addingassetdialog.ui \
     src/setrangedialog.ui \
-    src/addingbusassetdialog.ui
+    src/addingbusassetdialog.ui \
+    src/dataviewclass.ui
 
 TRANSLATIONS = translates/plotter_ru_RU.ts
 

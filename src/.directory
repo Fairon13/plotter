@@ -1,7 +1,5 @@
 [Dolphin]
-SortOrder=1
-SortRole=date
-Timestamp=2015,9,14,16,37,19
+Timestamp=2015,9,28,16,33,43
 Version=3
 ViewMode=1
 VisibleRoles=Details_text,Details_size,Details_date,Details_type,CustomizedDetails

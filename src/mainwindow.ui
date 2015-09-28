@@ -18,14 +18,11 @@
     <normaloff>:/chart_curve</normaloff>:/chart_curve</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="handleWidth">
-       <number>2</number>
       </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -41,12 +38,6 @@
         </item>
         <item>
          <widget class="PlotManagerClass" name="plotsManager">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>400</height>
-           </size>
-          </property>
           <property name="acceptDrops">
            <bool>true</bool>
           </property>
@@ -69,19 +60,10 @@
        </layout>
       </widget>
       <widget class="QTabWidget" name="tabWidget">
-       <property name="minimumSize">
-        <size>
-         <width>500</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="currentIndex">
         <number>-1</number>
        </property>
        <property name="tabsClosable">
-        <bool>true</bool>
-       </property>
-       <property name="movable">
         <bool>true</bool>
        </property>
       </widget>
@@ -95,7 +77,7 @@
      <x>0</x>
      <y>0</y>
      <width>716</width>
-     <height>30</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -498,22 +480,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>tabWidget</sender>
-   <signal>tabCloseRequested(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onDataViewClose(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>310</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>357</x>
-     <y>276</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionAdd_Asset</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -554,6 +520,22 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>357</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>tabCloseRequested(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onDataViewClose(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>639</x>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>357</x>

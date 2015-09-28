@@ -8,6 +8,7 @@
 #include <plotviewclass.h>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QApplication>
 
 #include "AboutDialog.h"
 
@@ -186,6 +187,18 @@ void MainWindow::onSaveState()
     pSetup.setValue("size", size());
     pSetup.setValue("tmp", tmpDir);
 
+    pSetup.beginWriteArray("splitter");
+    QList<int>  sizes = ui->splitter->sizes();
+    int idx = 0;
+    foreach(int val, sizes)
+    {
+        pSetup.setArrayIndex(idx);
+        pSetup.setValue("size", val);
+        ++idx;
+    }
+    pSetup.endArray();
+
+
     pSetup.setValue("data", QDir::current().relativeFilePath(dataDir));
     pSetup.setValue("autoLoadData", _autoLoadData);
     pSetup.setValue("autoConnect", _autoConnect);
@@ -201,7 +214,7 @@ void MainWindow::onSaveState()
 
     pSetup.beginGroup("assets");
     pSetup.beginWriteArray("asset");
-    int idx = 0;
+    idx = 0;
     foreach(AssetClass* pAsset, _assets)
     {
         pSetup.setArrayIndex(idx);
@@ -222,8 +235,29 @@ void MainWindow::onLoadState()
     QSettings   pSetup("state.cfg", QSettings::IniFormat);
 
     pSetup.beginGroup("main");
-    move(pSetup.value("pos").toPoint());
-    resize(pSetup.value("size").toSize());
+    QPoint  pos = pSetup.value("pos").toPoint();
+    QSize   size = pSetup.value("size", QSize(800, 600)).toSize();
+
+    move(pos);
+    resize(size);
+
+    QDesktopWidget* pMon = QApplication::desktop();
+
+    if(pMon->screenNumber(this) == -1)
+        move(QPoint(0, 0));
+
+    QList<int>  sizes;
+    int num = pSetup.beginReadArray("splitter");
+    for(int k=0; k<num; ++k)
+    {
+        pSetup.setArrayIndex(k);
+        int val = pSetup.value("size", 200).toInt();
+        sizes.append(val);
+    }
+    pSetup.endArray();
+    if(sizes.count())
+        ui->splitter->setSizes(sizes);
+
     _edit = pSetup.value("edit", true).toBool();
     tmpDir = pSetup.value("tmp", QString(".")).toString();
     dataDir = pSetup.value("data", QString(".")).toString();
@@ -237,7 +271,7 @@ void MainWindow::onLoadState()
 
     AssetClass* pAsset;
     pSetup.beginGroup("assets");
-    int num = pSetup.beginReadArray("asset");
+    num = pSetup.beginReadArray("asset");
     for(int k=0; k<num; ++k)
     {
         pSetup.setArrayIndex(k);
